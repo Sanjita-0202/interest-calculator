@@ -4,24 +4,38 @@ import { Account } from "@/models/Accounts";
 
 export async function POST(
   req: Request,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
-  await connectDB();
+  try {
+    await connectDB();
 
-  const account = await Account.findById(params.id);
-  if (!account) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
-  }
+    const { id } = await context.params;
 
-  if (account.totalOutstanding !== 0) {
+    const account = await Account.findById(id);
+
+    if (!account) {
+      return NextResponse.json(
+        { error: "Account not found" },
+        { status: 404 }
+      );
+    }
+
+    if (account.totalOutstanding !== 0) {
+      return NextResponse.json(
+        { error: "Outstanding must be zero to close account" },
+        { status: 400 }
+      );
+    }
+
+    account.closed = true;
+    await account.save();
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("ACCOUNT CLOSE ERROR:", error);
     return NextResponse.json(
-      { error: "Outstanding must be zero to close account" },
-      { status: 400 }
+      { error: "Failed to close account" },
+      { status: 500 }
     );
   }
-
-  account.closed = true;
-  await account.save();
-
-  return NextResponse.json({ success: true });
 }
