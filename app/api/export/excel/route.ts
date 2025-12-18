@@ -1,5 +1,5 @@
-import { Account } from "@/models/Accounts";
 export const dynamic = "force-dynamic";
+import { Account } from "@/models/Accounts";
 
 import { NextResponse } from "next/server";
 import ExcelJS from "exceljs";
