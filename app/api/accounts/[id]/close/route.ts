@@ -32,7 +32,6 @@ export async function POST(
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("ACCOUNT CLOSE ERROR:", error);
     return NextResponse.json(
       { error: "Failed to close account" },
       { status: 500 }
