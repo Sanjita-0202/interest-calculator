@@ -1,65 +1,79 @@
-import Image from "next/image";
+"use client";
+
+import { useState } from "react";
+import CalculatorCard from "./components/CalculatorCard";
+import InputField from "./components/InputField";
 
 export default function Home() {
+  const [principal, setPrincipal] = useState(0);
+  const [rate, setRate] = useState(0);
+  const [time, setTime] = useState(0);
+
+  const interest = (principal * rate * time) / 100;
+  const totalAmount = principal + interest;
+  const saveCalculation = async () => {
+  await fetch("/api/calculate", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      principal,
+      rate,
+      time,
+      interest,
+      total: totalAmount,
+    }),
+  });
+};
+
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <main className="min-h-screen bg-[#F4F6FA] flex items-center justify-center">
+      <CalculatorCard>
+        <h1 className="mb-6 text-xl font-semibold text-[#111827]">
+          Simple Interest Calculator
+        </h1>
+
+        <div className="flex flex-col gap-4">
+          <InputField
+            label="Principal Amount"
+            value={principal}
+            onChange={setPrincipal}
+          />
+
+          <InputField
+            label="Rate of Interest (%)"
+            value={rate}
+            onChange={setRate}
+          />
+
+          <InputField
+            label="Time (years)"
+            value={time}
+            onChange={setTime}
+          />
+        </div>
+        
+
+        {/* Result */}
+        <div className="mt-6 rounded-xl bg-[#EFF6FF] p-4">
+          <button
+  onClick={saveCalculation}
+  className="mt-4 h-11 w-full rounded-xl bg-[#2563EB] text-white font-medium hover:bg-[#1D4ED8]"
+>
+  Save Calculation
+</button>
+
+          <p className="text-sm text-[#1E40AF]">Interest Amount</p>
+          <p className="text-2xl font-semibold text-[#1D4ED8]">
+            ₹ {interest.toFixed(2)}
+          </p>
+
+          <p className="mt-2 text-sm text-[#1E40AF]">Total Amount</p>
+          <p className="text-lg font-medium text-[#1D4ED8]">
+            ₹ {totalAmount.toFixed(2)}
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+      </CalculatorCard>
+    </main>
   );
 }
