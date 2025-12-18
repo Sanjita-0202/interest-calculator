@@ -3,13 +3,20 @@ import { connectDB } from "@/lib/db";
 import { Account } from "@/models/Accounts";
 
 export async function POST(
-  req: Request,
-  context: { params: Promise<{ id: string }> }
+  request: any,
+  context: any
 ) {
   try {
     await connectDB();
 
-    const { id } = await context.params;
+    const id = context?.params?.id;
+
+    if (!id) {
+      return NextResponse.json(
+        { error: "Missing account id" },
+        { status: 400 }
+      );
+    }
 
     const account = await Account.findById(id);
 
@@ -31,7 +38,7 @@ export async function POST(
     await account.save();
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch (err) {
     return NextResponse.json(
       { error: "Failed to close account" },
       { status: 500 }
