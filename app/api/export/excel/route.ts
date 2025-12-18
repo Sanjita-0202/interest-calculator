@@ -1,3 +1,6 @@
+import { Account } from "@/models/Accounts";
+export const dynamic = "force-dynamic";
+
 import { NextResponse } from "next/server";
 import ExcelJS from "exceljs";
 import { connectDB } from "../../../../lib/db";
