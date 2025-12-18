@@ -4,36 +4,25 @@ import { useState } from "react";
 import { calculateInterest } from "@/lib/interest";
 
 export default function CalculationsPage() {
-  // Account
-  const [accountId, setAccountId] = useState<string>("");
+  const [accountId, setAccountId] = useState("");
+  const [principal, setPrincipal] = useState(0);
+  const [interestRate, setInterestRate] = useState(0);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
-  // Inputs
-  const [principal, setPrincipal] = useState<number>(0);
-  const [interestRate, setInterestRate] = useState<number>(0);
-  const [startDate, setStartDate] = useState<string>("");
-  const [endDate, setEndDate] = useState<string>("");
-
-  // Interest type controls
   const [interestType, setInterestType] =
     useState<"simple" | "compound">("simple");
 
   const [compounding, setCompounding] =
     useState<"monthly" | "quarterly" | "yearly">("monthly");
 
-  // Results
   const [interest, setInterest] = useState<number | null>(null);
   const [totalAmount, setTotalAmount] = useState<number | null>(null);
-  const [saving, setSaving] = useState<boolean>(false);
+  const [saving, setSaving] = useState(false);
 
   const handleCalculate = async () => {
-    if (
-      !accountId ||
-      !principal ||
-      !interestRate ||
-      !startDate ||
-      !endDate
-    ) {
-      alert("Please fill all fields including account");
+    if (!accountId || !principal || !interestRate || !startDate || !endDate) {
+      alert("Please fill all fields");
       return;
     }
 
@@ -53,7 +42,6 @@ export default function CalculationsPage() {
 
     try {
       setSaving(true);
-
       await fetch("/api/calculate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -62,113 +50,162 @@ export default function CalculationsPage() {
           principal,
           interestRate,
           interestType,
-          compounding: interestType === "compound" ? compounding : undefined,
+          compounding:
+            interestType === "compound" ? compounding : undefined,
           startDate,
           endDate,
           interest: interestResult,
           totalAmount: total,
         }),
       });
-    } catch (error) {
-      console.error("Failed to save calculation", error);
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <div style={{ maxWidth: 500, margin: "40px auto" }}>
-      <h2>Interest Calculator</h2>
-
-      {/* Account */}
-      <label>Account</label>
-      <select
-        value={accountId}
-        onChange={(e) => setAccountId(e.target.value)}
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "#f4f6fb",
+        padding: "40px",
+        color: "#000",
+      }}
+    >
+      <div
+        style={{
+          maxWidth: 520,
+          margin: "0 auto",
+          background: "#fff",
+          padding: 30,
+          borderRadius: 14,
+          boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
+        }}
       >
-        <option value="">Select Account</option>
-        {/* TEMP: replace with real accounts later */}
-        <option value="ACCOUNT_ID_1">Account 1</option>
-        <option value="ACCOUNT_ID_2">Account 2</option>
-      </select>
+        <h1 style={{ marginBottom: 20 }}>Interest Calculator</h1>
 
-      {/* Principal */}
-      <label>Principal</label>
-      <input
-        type="number"
-        value={principal}
-        onChange={(e) => setPrincipal(Number(e.target.value))}
-      />
+        <label>Account</label>
+        <select
+          style={input}
+          value={accountId}
+          onChange={(e) => setAccountId(e.target.value)}
+        >
+          <option value="">Select Account</option>
+          <option value="ACCOUNT_ID_1">Account 1</option>
+          <option value="ACCOUNT_ID_2">Account 2</option>
+        </select>
 
-      {/* Interest Rate */}
-      <label>Annual Interest Rate (%)</label>
-      <input
-        type="number"
-        value={interestRate}
-        onChange={(e) => setInterestRate(Number(e.target.value))}
-      />
+        <label>Principal Amount</label>
+        <input
+          type="number"
+          style={input}
+          value={principal}
+          onChange={(e) => setPrincipal(+e.target.value)}
+        />
 
-      {/* Dates */}
-      <label>Start Date</label>
-      <input
-        type="date"
-        value={startDate}
-        onChange={(e) => setStartDate(e.target.value)}
-      />
+        <label>Interest Rate (%)</label>
+        <input
+          type="number"
+          style={input}
+          value={interestRate}
+          onChange={(e) => setInterestRate(+e.target.value)}
+        />
 
-      <label>End Date</label>
-      <input
-        type="date"
-        value={endDate}
-        onChange={(e) => setEndDate(e.target.value)}
-      />
+        <label>Start Date</label>
+        <input
+          type="date"
+          style={input}
+          value={startDate}
+          onChange={(e) => setStartDate(e.target.value)}
+        />
 
-      {/* Interest Type */}
-      <label>Interest Type</label>
-      <select
-        value={interestType}
-        onChange={(e) =>
-          setInterestType(e.target.value as "simple" | "compound")
-        }
-      >
-        <option value="simple">Simple Interest</option>
-        <option value="compound">Compound Interest</option>
-      </select>
+        <label>End Date</label>
+        <input
+          type="date"
+          style={input}
+          value={endDate}
+          onChange={(e) => setEndDate(e.target.value)}
+        />
 
-      {/* Compounding */}
-      {interestType === "compound" && (
-        <>
-          <label>Compounding</label>
-          <select
-            value={compounding}
-            onChange={(e) =>
-              setCompounding(
-                e.target.value as "monthly" | "quarterly" | "yearly"
-              )
-            }
+        <label>Interest Type</label>
+        <select
+          style={input}
+          value={interestType}
+          onChange={(e) =>
+            setInterestType(e.target.value as "simple" | "compound")
+          }
+        >
+          <option value="simple">Simple</option>
+          <option value="compound">Compound</option>
+        </select>
+
+        {interestType === "compound" && (
+          <>
+            <label>Compounding</label>
+            <select
+              style={input}
+              value={compounding}
+              onChange={(e) =>
+                setCompounding(
+                  e.target.value as "monthly" | "quarterly" | "yearly"
+                )
+              }
+            >
+              <option value="monthly">Monthly</option>
+              <option value="quarterly">Quarterly</option>
+              <option value="yearly">Yearly</option>
+            </select>
+          </>
+        )}
+
+        <button
+          onClick={handleCalculate}
+          disabled={saving}
+          style={primaryBtn}
+        >
+          {saving ? "Saving..." : "Calculate"}
+        </button>
+
+        {interest !== null && totalAmount !== null && (
+          <div
+            style={{
+              marginTop: 24,
+              background: "#eff6ff",
+              padding: 16,
+              borderRadius: 10,
+            }}
           >
-            <option value="monthly">Monthly</option>
-            <option value="quarterly">Quarterly</option>
-            <option value="yearly">Yearly</option>
-          </select>
-        </>
-      )}
-
-      <button onClick={handleCalculate} disabled={saving}>
-        {saving ? "Saving..." : "Calculate"}
-      </button>
-
-      {/* Results */}
-      {interest !== null && totalAmount !== null && (
-        <div style={{ marginTop: 20 }}>
-          <p>
-            <strong>Interest Amount:</strong> ₹{interest}
-          </p>
-          <p>
-            <strong>Total Amount:</strong> ₹{totalAmount}
-          </p>
-        </div>
-      )}
+            <p>
+              <strong>Interest:</strong> ₹{interest.toFixed(2)}
+            </p>
+            <p>
+              <strong>Total:</strong> ₹{totalAmount.toFixed(2)}
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
+
+/* ---------- STYLES ---------- */
+
+const input: React.CSSProperties = {
+  width: "100%",
+  padding: "10px 12px",
+  marginBottom: 14,
+  borderRadius: 6,
+  border: "1px solid #d1d5db",
+  color: "#000",
+};
+
+const primaryBtn: React.CSSProperties = {
+  width: "100%",
+  padding: "12px",
+  background: "#2563eb",
+  color: "#fff",
+  border: "none",
+  borderRadius: 8,
+  cursor: "pointer",
+  fontWeight: 500,
+};

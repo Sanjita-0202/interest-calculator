@@ -6,23 +6,42 @@ import { usePathname } from "next/navigation";
 export default function Navbar() {
   const pathname = usePathname();
 
-  const linkClass = (path: string) =>
-    `px-4 py-2 rounded-md text-sm font-medium ${
-      pathname === path
-        ? "bg-blue-600 text-white"
-        : "text-gray-600 hover:bg-gray-100"
-    }`;
+  const linkStyle = (path: string): React.CSSProperties => ({
+    textDecoration: "none",
+    color: pathname === path ? "#2563eb" : "#111827",
+    fontWeight: pathname === path ? 600 : 500,
+  });
 
   return (
-    <nav className="flex items-center justify-between px-8 py-4 border-b bg-white">
-      <h1 className="text-lg font-semibold">Interest Manager</h1>
+    <nav
+      style={{
+        background: "#ffffff",
+        padding: "14px 30px",
+        display: "flex",
+        gap: 24,
+        borderBottom: "1px solid #e5e7eb",
+        alignItems: "center",
+      }}
+    >
+      <Link href="/" style={linkStyle("/")}>
+        Home
+      </Link>
 
-      <div className="flex gap-2">
-        <Link href="/" className={linkClass("/")}>Calculator</Link>
-        <Link href="/accounts" className={linkClass("/accounts")}>Accounts</Link>
-        <Link href="/transactions" className={linkClass("/transactions")}>Transactions</Link>
-        <Link href="/dashboard" className={linkClass("/dashboard")}>Dashboard</Link>
-      </div>
+      <Link href="/dashboard" style={linkStyle("/dashboard")}>
+        Dashboard
+      </Link>
+
+      <Link href="/calculations" style={linkStyle("/calculations")}>
+        Calculations
+      </Link>
+
+      <Link href="/accounts" style={linkStyle("/accounts")}>
+        Accounts
+      </Link>
+
+      <Link href="/transactions" style={linkStyle("/transactions")}>
+        Transactions
+      </Link>
     </nav>
   );
 }

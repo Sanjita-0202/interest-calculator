@@ -15,8 +15,15 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
+type Stats = {
+  totalGiven: number;
+  totalTaken: number;
+  outstanding: number;
+  accounts: number;
+};
+
 export default function DashboardPage() {
-  const [stats, setStats] = useState({
+  const [stats, setStats] = useState<Stats>({
     totalGiven: 0,
     totalTaken: 0,
     outstanding: 0,
@@ -28,10 +35,27 @@ export default function DashboardPage() {
   const [interestData, setInterestData] = useState<any[]>([]);
 
   useEffect(() => {
-    fetch("/api/dashboard").then(res => res.json()).then(setStats);
-    fetch("/api/analytics/monthly").then(res => res.json()).then(setMonthlyData);
-    fetch("/api/analytics/accounts").then(res => res.json()).then(setAccountAnalytics);
-    fetch("/api/analytics/interest").then(res => res.json()).then(setInterestData);
+    fetch("/api/dashboard")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data) setStats(data);
+      })
+      .catch(() => {});
+
+    fetch("/api/analytics/monthly")
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data) => setMonthlyData(Array.isArray(data) ? data : []))
+      .catch(() => setMonthlyData([]));
+
+    fetch("/api/analytics/accounts")
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data) => setAccountAnalytics(Array.isArray(data) ? data : []))
+      .catch(() => setAccountAnalytics([]));
+
+    fetch("/api/analytics/interest")
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data) => setInterestData(Array.isArray(data) ? data : []))
+      .catch(() => setInterestData([]));
   }, []);
 
   return (
@@ -109,6 +133,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
+        {/* BAR */}
         <div style={{ ...chartCard, marginTop: 20 }}>
           <h3>Account-wise Outstanding</h3>
           <ResponsiveContainer width="100%" height={300}>
@@ -121,6 +146,7 @@ export default function DashboardPage() {
           </ResponsiveContainer>
         </div>
 
+        {/* INTEREST */}
         <div style={{ ...chartCard, marginTop: 20 }}>
           <h3>Interest vs Principal</h3>
           <ResponsiveContainer width="100%" height={300}>
@@ -140,7 +166,7 @@ export default function DashboardPage() {
 
 /* ---------- COMPONENTS ---------- */
 
-function StatCard({ title, value }: any) {
+function StatCard({ title, value }: { title: string; value: any }) {
   return (
     <div style={statCard}>
       <p style={{ color: "#6b7280", fontSize: 14 }}>{title}</p>
