@@ -2,65 +2,46 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { Account } from "@/models/Accounts";
 
-/* -------- UPDATE ACCOUNT -------- */
-export async function PUT(
+export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
-  try {
-    await connectDB();
-    const body = await req.json();
+  await connectDB();
+  const { id } = await context.params;
 
-    const account = await Account.findByIdAndUpdate(
-      params.id,
-      body,
-      { new: true }
-    );
+  const account = await Account.findById(id);
 
-    if (!account) {
-      return NextResponse.json(
-        { success: false, message: "Account not found" },
-        { status: 404 }
-      );
-    }
-
+  if (!account) {
     return NextResponse.json(
-      { success: true, data: account },
-      { status: 200 }
-    );
-  } catch (error) {
-    return NextResponse.json(
-      { success: false, message: "Failed to update account" },
-      { status: 500 }
+      { error: "Account not found" },
+      { status: 404 }
     );
   }
+
+  return NextResponse.json({ data: account });
 }
 
-/* -------- DELETE ACCOUNT -------- */
+export async function PUT(
+  req: Request,
+  context: { params: Promise<{ id: string }> }
+) {
+  await connectDB();
+  const { id } = await context.params;
+  const body = await req.json();
+
+  const account = await Account.findByIdAndUpdate(id, body, { new: true });
+
+  return NextResponse.json({ data: account });
+}
+
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
-  try {
-    await connectDB();
+  await connectDB();
+  const { id } = await context.params;
 
-    const account = await Account.findByIdAndDelete(params.id);
+  await Account.findByIdAndDelete(id);
 
-    if (!account) {
-      return NextResponse.json(
-        { success: false, message: "Account not found" },
-        { status: 404 }
-      );
-    }
-
-    return NextResponse.json(
-      { success: true },
-      { status: 200 }
-    );
-  } catch (error) {
-    return NextResponse.json(
-      { success: false, message: "Failed to delete account" },
-      { status: 500 }
-    );
-  }
+  return NextResponse.json({ success: true });
 }
