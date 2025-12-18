@@ -2,16 +2,21 @@
 
 import { useEffect, useState } from "react";
 import {
-  LineChart, Line, XAxis, YAxis, Tooltip,
-  BarChart, Bar,
-  PieChart, Pie, Cell,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
   ResponsiveContainer,
 } from "recharts";
-import { exportToExcel } from "@/lib/exportExcel";
-import { exportToPDF } from "@/lib/exportPdf";
 
 export default function DashboardPage() {
-  const [stats, setStats] = useState<any>({
+  const [stats, setStats] = useState({
     totalGiven: 0,
     totalTaken: 0,
     outstanding: 0,
@@ -22,25 +27,11 @@ export default function DashboardPage() {
   const [accountAnalytics, setAccountAnalytics] = useState<any[]>([]);
   const [interestData, setInterestData] = useState<any[]>([]);
 
-  const [from, setFrom] = useState("");
-  const [to, setTo] = useState("");
-
   useEffect(() => {
-    fetch("/api/dashboard")
-      .then(res => res.json())
-      .then(setStats);
-
-    fetch("/api/analytics/monthly")
-      .then(res => res.json())
-      .then(setMonthlyData);
-
-    fetch("/api/analytics/accounts")
-      .then(res => res.json())
-      .then(setAccountAnalytics);
-
-    fetch("/api/analytics/interest")
-      .then(res => res.json())
-      .then(setInterestData);
+    fetch("/api/dashboard").then(res => res.json()).then(setStats);
+    fetch("/api/analytics/monthly").then(res => res.json()).then(setMonthlyData);
+    fetch("/api/analytics/accounts").then(res => res.json()).then(setAccountAnalytics);
+    fetch("/api/analytics/interest").then(res => res.json()).then(setInterestData);
   }, []);
 
   return (
@@ -61,24 +52,18 @@ export default function DashboardPage() {
           <div style={{ display: "flex", gap: 12 }}>
             <button
               style={excelBtn}
-              onClick={() => exportToExcel(accountAnalytics, "accounts-report")}
+              onClick={() => (window.location.href = "/api/export/excel")}
             >
               Export Excel
             </button>
 
             <button
               style={pdfBtn}
-              onClick={() => exportToPDF("dashboard-root")}
+              onClick={() => (window.location.href = "/api/export/pdf")}
             >
               Export PDF
             </button>
           </div>
-        </div>
-
-        {/* DATE FILTER */}
-        <div style={filterRow}>
-          <input type="date" value={from} onChange={e => setFrom(e.target.value)} />
-          <input type="date" value={to} onChange={e => setTo(e.target.value)} />
         </div>
 
         {/* STATS */}
@@ -91,7 +76,6 @@ export default function DashboardPage() {
 
         {/* CHARTS */}
         <div style={chartsGrid}>
-          {/* LINE */}
           <div style={chartCard}>
             <h3>Monthly Transactions</h3>
             <ResponsiveContainer width="100%" height={250}>
@@ -104,7 +88,6 @@ export default function DashboardPage() {
             </ResponsiveContainer>
           </div>
 
-          {/* PIE */}
           <div style={chartCard}>
             <h3>Given vs Taken</h3>
             <ResponsiveContainer width="100%" height={250}>
@@ -126,7 +109,6 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* BAR */}
         <div style={{ ...chartCard, marginTop: 20 }}>
           <h3>Account-wise Outstanding</h3>
           <ResponsiveContainer width="100%" height={300}>
@@ -139,7 +121,6 @@ export default function DashboardPage() {
           </ResponsiveContainer>
         </div>
 
-        {/* INTEREST VS PRINCIPAL */}
         <div style={{ ...chartCard, marginTop: 20 }}>
           <h3>Interest vs Principal</h3>
           <ResponsiveContainer width="100%" height={300}>
@@ -157,7 +138,7 @@ export default function DashboardPage() {
   );
 }
 
-/* ---------------- COMPONENTS ---------------- */
+/* ---------- COMPONENTS ---------- */
 
 function StatCard({ title, value }: any) {
   return (
@@ -168,19 +149,13 @@ function StatCard({ title, value }: any) {
   );
 }
 
-/* ---------------- STYLES ---------------- */
+/* ---------- STYLES ---------- */
 
 const header = {
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
   marginBottom: 20,
-};
-
-const filterRow = {
-  display: "flex",
-  gap: 12,
-  marginBottom: 30,
 };
 
 const statsGrid = {
