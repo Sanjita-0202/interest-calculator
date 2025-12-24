@@ -173,6 +173,7 @@ export default function CalculationsPage() {
               background: "#eff6ff",
               padding: 16,
               borderRadius: 10,
+              color: "#000",
             }}
           >
             <p>
